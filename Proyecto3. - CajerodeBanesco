@@ -1,0 +1,455 @@
+program cajeroBDV;
+uses crt;
+type
+dato=record
+      Nombre: string[30];
+      Apellido: string[30];
+      cedula: int64;
+      contrasena: string;
+      monto:int64;
+      transacciones:integer;
+      personas: array [1..50] of string;
+      entrada: array [1..50] of int64;
+      transferenciaas:array [1..50] of int64;
+      retiros:array [1..50] of Int64;
+      depositos:array[1..50] of Int64;
+      t,r,d,e:integer;
+     end;
+var
+transferencia:Int64;
+deposito:Int64;
+contraIn:string;
+cedulaTr:int64;
+ceIn:int64;
+operaciones:array[1..50] of integer;
+op: array[1..7] of integer;
+ingresado:array [1..2] of  boolean;
+registros: array [1..4] of boolean;
+transferencias: array [1..2] of boolean;
+registro: array [0..10] of dato;
+i,x:integer;
+Base_Datos:text;
+procedure guardarinfo;
+begin
+   assign(Base_Datos,'usuarios.txt');
+   rewrite(Base_Datos);
+   for i:= 1 to 10 do
+   begin
+   writeln(Base_Datos,'---------------------------');
+   writeln(Base_Datos,'NOMBRE: ',registro[i].nombre);
+   writeln(Base_Datos,'APELLIDO: ',registro[i].apellido);
+   writeln(Base_Datos,'CEDULA: ',registro[i].cedula);
+   writeln(Base_Datos,'MONTO: ',registro[i].monto);
+   writeln(Base_Datos,'---------------------------');
+   end;
+   close(Base_Datos);
+end;
+procedure ingresar;
+begin
+repeat
+begin
+writeln('INGRESE SU CEDULA');
+readln(ceIn);
+for x:= 1 to 10 do
+ if(ceIn=registro[x].cedula) then
+   begin
+   writeln('CEDULA ENCONTRADA EN BANESCO');
+   ingresado[1]:= true;
+   break;
+   end
+ else if (x=10) and (ceIn<>registro[x].cedula) and (ceIn=0) then
+   begin
+   ingresado[1]:= false;
+   writeln('La cedula ingresada no le pertenece a ninguna cuenta bancaria')
+   end;
+end;
+until (ingresado[1]=true);
+repeat
+Begin
+writeln('INGRESE SU CLAVE');
+readln(contraIn);
+for x:= 1 to 10 do 
+  if (contraIn=registro[x].contrasena) then
+   begin
+   writeln('HAS INGRESADO CORRECTAMENTE');
+   writeln('BIENVENID@ ',registro[x].nombre,' ',registro[x].apellido);
+   ingresado[2]:= true;
+   break;
+   end
+  else if (x=10) and (ingresado[2]=false) then
+   begin
+   writeln('CLAVE INCORRECTA');
+   ingresado[2]:= false; 
+   end;
+end;
+until (ingresado[2]=true);
+end;
+procedure registrar;
+begin 
+for x:= 1 to 10 do
+ if (registro[x].nombre='') and (registro[x].apellido='') and (registro[x].cedula=0) then
+  begin
+   writeln('Ingrese su nombre');
+   readln(registro[x].nombre);
+   registros[1]:= true;
+   clrscr;
+   writeln('Muy bien señor ',registro[x].nombre,' Ingrese su apellido');
+   readln(registro[x].apellido);
+   registros[2]:= true;
+   clrscr;
+   writeln('Muy bien señor ', registro[x].nombre,' ', registro[x].apellido, ' Ingrese el numero de cedula de identidad');
+  while (registros[3]=false) do 
+   begin
+   readln(registro[x].cedula);
+   registros[3]:= true; 
+    begin
+    for i:= x+1 to 10 do
+ if (registro[i].cedula=registro[x].cedula) then
+     begin
+     writeln('Ya esta cedula se encuentra registrada');
+     writeln('Ingrese una cedula diferente');
+     registros[3]:=false;
+     break
+     end;
+    for i:= x-1 downto 0 do
+ if (registro[i].cedula=registro[x].cedula) then
+     begin
+     writeln('Ya esta cedula se encuentra registrada');
+     writeln('Ingrese una cedula diferente');
+     registros[3]:=false;
+     break
+     end;
+    end;
+   end;
+   clrscr;
+   writeln('Ingrese una clave para el ingreso a su cuenta');
+   readln(registro[x].contrasena);
+   registros[4]:= true;
+   writeln;
+   break;
+   end;
+   registros[3]:=false;
+   writeln('Bienvenid@ ',registro[x].nombre,' ',registro[x].apellido,' En caso de querer ingresar a su cuenta solo necesita ingresar la cedula y su clave' );
+end;
+procedure menuPrin;
+begin
+  repeat
+  begin
+  textbackground(white);
+  write('                               ');
+  textcolor(blue);
+  write('BAN');
+  textcolor(green);
+  write('ESCO');
+  textcolor(9);
+  writeln('                                         ');
+  textbackground(green);
+  writeln('                     ELIJA UNA MANERA PARA INGRESAR                            ');
+  textbackground(white);
+  textcolor(black);
+  writeln(':::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::');
+  writeln('::                                                                           ::');
+  textcolor(black);
+  writeln('::                        [1:]   REGISTRATE                                  ::');
+  writeln('::                                                                           ::');
+  writeln('::                        [2:]   LOGUEA                                      ::');
+  textcolor(black);
+  writeln('::                                                                           ::');
+  writeln(':::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::');
+  textbackground(black);
+  textcolor(white);
+  readln(op[1]);
+  case op[1] of
+  1:begin
+  registrar;
+  end;
+  2:begin
+  ingresar;
+  end;
+  else
+  writeln('Opcion no identificada');
+  end;
+end;
+until (op[1]=1) or (op[1]=2);
+end;
+procedure depositos;
+begin
+if (registro[x].transacciones=50) then
+   begin
+   writeln('Ya ha excedido el limite de transacciones por dia');
+   exit;
+   end;
+  clrscr;
+  writeln('Ingrese el monto a depositar');
+  readln(deposito);
+  registro[x].d:=1+registro[x].d;
+  registro[x].monto:= registro[x].monto + deposito;
+  registro[x].transacciones:=1+registro[x].transacciones;
+  registro[x].depositos[registro[x].d]:= deposito;
+  writeln('Ha depositado la cifra de ',deposito,'Bss ahora tiene:     ',registro[x].monto,'Bss en su cuenta');
+end;
+procedure transferenciAA;
+begin
+  begin
+  clrscr;
+  writeln('Su cuenta tiene ',registro[x].monto,'Bss');
+     repeat
+     begin
+     writeln('Ingrese el monto a transferir');
+     readln(transferencia);
+     if (registro[x].transacciones=50) then
+        begin
+        writeln('Ya ha excedido el limite de transacciones por dia');
+        exit;
+        end
+    else if (transferencia<=registro[x].monto) then
+        transferencias[1]:= true
+       else
+        writeln('El monto a transferir es mayor al existente');
+     end;
+     until (transferencias[1]=true);
+     repeat
+     begin
+     writeln('Ingrese la cedula de la persona a la que quiere    transferirle');
+     readln(cedulaTr);
+        for i:= 1 to 10 do
+     if (cedulaTr=registro[i].cedula) and (cedulatr<>0) then
+        begin
+        registro[x].t:=1+registro[x].t;
+        registro[i].e:=registro[x].e+1;
+        transferencias[2]:= true;
+        registro[x].monto:= registro[x].monto-transferencia;
+        registro[i].monto:= registro[i].monto+transferencia;
+        registro[i].personas[registro[i].e]:= registro[x].nombre;
+        registro[i].entrada[registro[i].e]:= transferencia;
+        registro[x].transacciones:= 1+registro[x].transacciones;
+        registro[x].transferenciaas[registro[x].t]:= transferencia;
+        textcolor(green);
+        writeln('Transferencia exitosa');
+        textcolor(white);
+        writeln('Te quedan ',registro[x].monto,'Bss ');
+        break
+        end
+      else if (i=10) and (cedulaTr<>registro[i].cedula) or (cedulatr=0) then
+        begin
+         writeln('La cedula no le pertenece a ningun usuario');
+         break
+        end;
+     end;
+     until (transferencias[2]=true);
+  end;
+end;
+procedure retiroDinero;
+begin
+   begin
+   if (registro[x].transacciones=50) then
+        begin
+        writeln('Ya ha excedido el limite de transacciones por dia');
+        exit;
+        end
+    end;
+    begin
+    registro[x].r:=1+registro[x].r;
+    writeln('                    Elija la opcion que quire retirar                    ');
+    textbackground(white);
+    textcolor(green);
+    writeln('                           1 =   1.000Bss                                ');
+    writeln('                           2 =   2.000Bss                                ');
+    writeln('                           3 =   10.000Bss                               ');
+    writeln('                           4 =   20.000Bss                               ');
+    writeln('                           5 =   50.000Bss                               ');
+    textbackground(black);
+    textcolor(white);
+    readln(op[2]);
+    case op[2] of
+    1:begin
+    if (registro[x].monto>=1000) then
+    begin
+    registro[x].monto:= registro[x].monto - 1000;
+    clrscr;
+    writeln('Has retirado 1.000Bss te quedan ',registro[x].monto,'Bss');
+    registro[x].retiros[registro[x].r]:= 1000;
+    registro[x].transacciones:= 1+registro[x].transacciones;
+    end
+    else
+    begin
+    writeln('El monto a retirar es mayor que el disponible');
+    end;
+    end;
+    2:begin
+    if (registro[x].monto>=2000) then
+    begin
+    registro[x].monto:= registro[x].monto - 2000;
+    clrscr;
+    writeln('Has retirado 2.000Bss te quedan ',registro[x].monto,'Bss');
+    registro[x].retiros[registro[x].r]:= 2000;
+    registro[x].transacciones:= 1+registro[x].transacciones;
+    end
+    else
+    begin
+    writeln('El monto a retirar es mayor que el disponible');
+    end;
+    end;
+    3:begin
+    if (registro[x].monto>=10000) then
+    begin
+    registro[x].monto:= registro[x].monto - 10000;
+    clrscr;
+    writeln('Has retirado 10.000Bss te quedan ',registro[x].monto,'Bss');
+    registro[x].retiros[registro[x].r]:= 10000;
+    registro[x].transacciones:= 1+registro[x].transacciones;
+    end
+    else
+    begin
+    writeln('El monto a retirar es mayor que el disponible');
+    end;
+    end;
+    4:begin
+    if (registro[x].monto>=20000) then
+    begin
+    registro[x].monto:= registro[x].monto - 20000;
+    clrscr;
+    writeln('Has retirado 20.000Bss te quedan ',registro[x].monto,'Bss');
+    registro[x].retiros[registro[x].r]:= 20000;
+    registro[x].transacciones:= 1+registro[x].transacciones;
+    end
+    else
+    begin
+    writeln('El monto a retirar es mayor que el disponible');
+    end;
+    end;
+    5:begin
+    if (registro[x].monto>=50000) then
+    begin
+    registro[x].monto:= registro[x].monto - 50000;
+    clrscr;
+    writeln('Has retirado 50.000Bss te quedan ',registro[x].monto,'Bss');
+    registro[x].retiros[registro[x].r]:= 50000;
+    registro[x].transacciones:= 1+registro[x].transacciones;
+    end
+    else
+    begin
+    writeln('El monto a retirar es mayor que el disponible');
+    end;
+    end;
+    end;
+   end;
+end;
+procedure Vertransaccion;
+begin
+   clrscr;
+   for i:= 1 to 50 do
+   if (registro[x].transferenciaas[i]<>0) then
+   begin
+   textcolor(red);
+   writeln('Has transferido ',registro[x].transferenciaas[i],'Bss');
+   end;
+   for i:= 1 to 50 do
+   if (registro[x].retiros[i]<>0) then
+   begin
+   textcolor(Red);
+   writeln('Has retirado ',registro[x].retiros[i],'Bss');
+   textcolor(white);
+   end;
+   for i:= 1 to 50 do
+   if (registro[x].depositos[i]<>0) then
+   begin
+   textcolor(green);
+   writeln('Has depositado ',registro[x].depositos[i],'Bss');
+   textcolor(white);
+   end;
+   for i:= 1 to 50 do
+   if (registro[x].personas[i]<>'') and (registro[x].entrada[i]<>0) then
+   begin
+   textcolor(blue);
+   write(registro[x].personas[i]);
+   textcolor(white);
+   writeln(' Te ha depositado: ',registro[x].entrada[i]);
+   end; 
+   writeln;
+   writeln('SALDO DISPONIBLE = ',registro[x].monto,'Bss');
+   writeln;
+   writeln('PRESIONE ENTER PARA SALIR');
+   readln;
+   clrscr;
+end;
+procedure cerrarsesion;
+begin
+  x:=0;
+  i:=0;
+  menuPrin;
+  guardarinfo;
+end;
+procedure menuAc;
+begin
+  repeat
+  begin
+  textbackground(blue);
+  writeln('                           ELIJA UNA ACCION                                ');
+  textbackground(white);
+  textcolor(green);
+  writeln(':::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::');
+  writeln('::                                                                       ::');
+  writeln('::                    [1:]       TRANSFERIR                              ::');
+  writeln('::                                                                       ::');
+  writeln('::                    [2:]       DEPOSITAR                               ::');
+  writeln('::                                                                       ::');
+  writeln('::                    [3:]       RETIRAR                                 ::');
+  writeln('::                                                                       ::');
+  writeln('::                    [4:]       VER TRANSACCIONES                       ::');
+  writeln('::                                                                       ::');
+  writeln('::                    [5:]       CERRAR SESIÓN                           ::');
+  writeln('::                                                                       ::');
+  writeln('::                    [6:]       SALIR PROGRAMA                          ::');
+  writeln(':::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::');
+  textbackground(black);
+  textcolor(white);
+  readln(op[3]);
+    case op[3] of
+    1:begin
+    if (registro[x].monto<>0) then
+    begin
+    transferenciAA;
+    end
+    else 
+    begin
+    clrscr;
+    writeln('No tiene fondos para transferir');
+    end;
+    end;
+    2:begin
+    depositos;
+    end;
+    3:begin
+    retiroDinero;
+    end;
+    4:begin
+    vertransaccion;
+    end;
+    5:begin
+    clrscr;
+    writeln('Sesion cerrada');
+    cerrarsesion;
+    end;
+    6:begin
+    end;
+    else
+    begin 
+    writeln('Opcion incorrecta');
+    end;
+   end;
+  end;
+  until (op[3]>0) and (op[3]<7);
+end;
+begin
+ begin
+ clrscr;
+ menuPrin;
+ end;
+ repeat
+ begin
+ menuAc;
+ end;
+ until (op[3]=6);
+ guardarinfo;
+end.
